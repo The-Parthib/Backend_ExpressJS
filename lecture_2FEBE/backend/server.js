@@ -39,7 +39,6 @@ app.get("/api/jokes",(req,res) => {
   res.send(jokes);
  })
 
-
 app.listen(port, () => {
   console.log(`server running at http://localhost:${port}`);
 });

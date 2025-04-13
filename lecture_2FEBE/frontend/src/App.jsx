@@ -20,13 +20,14 @@ function App() {
   return (
     <>
       <h1>Parthib aur Full Stack</h1>
-
       <p>JOKES: {jokes.length}</p>
       {jokes.map((joke) => {
-        return (<div key={jokes.id}>
-          <h3>{joke.title}</h3>
-          <p>{joke.content}</p>
-        </div>)
+        return (
+          <div key={jokes.id}>
+            <h3>{joke.title}</h3>
+            <p>{joke.content}</p>
+          </div>
+        );
       })}
     </>
   );

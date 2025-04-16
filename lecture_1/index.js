@@ -56,10 +56,13 @@ app.get("/user", (req, res) => {
 app.get("/rupsa", (req, res) => {
   res.send("<h1>Hii I'm Rupsa Chatterjee(Panja)</h1>");
 });
+app.get("/parthib", (req, res) => {
+  res.send("<h1>Hii I'm Parthib Panja</h1>");
+});
 
-app.get("/github",(req,res) => { 
-    res.json(github)
- })
+app.get("/github", (req, res) => {
+  res.json(github);
+});
 app.listen(process.env.PORT, () => {
   console.log(`Example app listening on port ${port}`);
 });

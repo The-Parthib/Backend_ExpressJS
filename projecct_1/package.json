@@ -1,0 +1,12 @@
+{
+  "name": "projecct_1",
+  "version": "1.0.0",
+  "description": "Basic learning from Chai aur code yt channel",
+  "license": "ISC",
+  "author": "Parthib Panja",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}

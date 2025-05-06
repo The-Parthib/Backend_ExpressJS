@@ -1,14 +1,12 @@
-import mongoose from 'mongoose';
-import { DB_NAME } from './constants';
+// require("dotenv").config({ path: "./env" });
+import dotenv from "dotenv"
+import connectDB from "./db/MongoDB.js";
 
 
-
-
-
-
-
-
-
+dotenv.config({
+    path: "./env"
+})
+connectDB();
 
 /*
 // Approach No 1: Using IIFE (Immediately Invoked Function Expression) to connect to MongoDB and start the server

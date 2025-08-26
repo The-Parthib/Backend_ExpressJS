@@ -1,0 +1,16 @@
+REST full API making..
+
+GET/users -> list all users  (HTML rendered page)
+
+GET/api/users -> for other devices
+
+// dynamic api
+GET/api/users/:id -> list the user with ID 1
+GET/api/users/1 -> list the user with ID 1
+GET/api/users/2 -> list the user with ID 2
+
+POST/api/users -> create new user
+
+PATCH/api/users/1 -> update the user with ID 1
+
+DELETE/api/users/1 -> delete the User with ID 1

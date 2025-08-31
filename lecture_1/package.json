@@ -8,14 +8,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "learn": "node index2.js",
-    "express": "node express.js",
-    "rest": "node rest.js"
+    "start": "nodemon index.js",
+    "learn": "nodemon index2.js",
+    "express": "nodemon express.js",
+    "rest": "nodemon rest.js"
   },
   "dependencies": {
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
+    "nodemon": "^3.1.10",
     "url": "^0.11.4"
   }
 }

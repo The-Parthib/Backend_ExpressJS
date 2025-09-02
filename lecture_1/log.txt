@@ -31,3 +31,14 @@ Sun Aug 31 2025 15:10:28 GMT+0530 (India Standard Time): GET : /api/users/12
 31/8/2025, 5:57:32 pm: ::1 : GET : /api/users/6
 31/8/2025, 6:00:06 pm: ::1 : PUT : /api/users/6
 31/8/2025, 6:00:19 pm: ::1 : PATCH : /api/users/6
+2/9/2025, 2:27:36 am: ::1 : POST : /api/users
+2/9/2025, 2:33:05 am: ::1 : POST : /api/users
+2/9/2025, 2:48:53 am: ::1 : GET : /api/users
+2/9/2025, 2:49:18 am: ::1 : GET : /api/users
+2/9/2025, 2:49:18 am: ::1 : GET : /favicon.ico
+2/9/2025, 2:49:19 am: ::1 : GET : /api/users
+2/9/2025, 2:49:41 am: ::1 : GET : /api/users
+3/9/2025, 1:25:30 am: ::1 : POST : /api/users
+3/9/2025, 1:26:10 am: ::1 : POST : /api/users
+3/9/2025, 1:29:28 am: ::1 : GET : /users
+3/9/2025, 1:31:20 am: ::1 : GET : /users

@@ -66,9 +66,10 @@ app.get("/home", (req, res) => {
   res.send(`hello rest app go to /users ${req.myUsername}`);
 });
 
-app.get("/users", (req, res) => {
+app.get("/users", async (req, res) => {
   // res.setHeader("X-myName", "Parthib Panja");
-  return res.json();
+  const allDBusers = await User.find({})
+  return res.json(allDBusers);
 });
 
 app.get("/api/users", async (req, res) => {

@@ -15,8 +15,22 @@ mongoDBconnection(mongoUri)
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
 app.use("/url", urlRoute);
 
+app.get("/test", async (req, res) => {
+  const allUSers = await URL.find({});
+  return res.end(`
+    <html>
+    <head></head>
+    <body>
+    <ol>
+    ${allUSers.map(
+      (item) =>
+        `<li>${item.shortId} - ${item.redirectUrl} - ${item.visitHistory.length} visits</li>`
+    ).join("")}
+    </ol>
+    </body>
+    </html>`);
+});
 
 app.listen(PORT, () => console.log(`Server listening on localhost:${PORT}`));

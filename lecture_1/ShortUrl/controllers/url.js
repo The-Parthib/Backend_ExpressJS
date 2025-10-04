@@ -2,6 +2,7 @@ const { nanoid } = require("nanoid");
 const URL = require("../models/url");
 // const p = nanoid(8); //=> "Y0sR8lkb"
 // console.log(p)
+
 async function handleGenerateNewShortUrl(req, res) {
   const ShortId = nanoid(8);
   const body = req.body;

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home | ejs</title>
+    <style>
+      .header {
+        color: rgb(255, 33, 33);
+        text-align: center;
+        margin-top: 50px;
+        animation: colorChange 3s infinite;
+      }
+      .list {
+        margin-top: 50px;
+        margin-left: 70px;
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 class="header">Hello from Server</h1>
+    <div class="list">
+      <% urls.forEach(url => { %>
+      <ul>
+        <li><%= url.redirectUrl %> &nbsp; - &nbsp; <%= url.shortId %></li>
+      </ul>
+      <% }) %>
+    </div>
+  </body>
+</html>
+
+

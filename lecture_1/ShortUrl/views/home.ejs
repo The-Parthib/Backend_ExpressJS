@@ -149,17 +149,15 @@
   </head>
   <body>
     <h1 class="header">MiniMizer</h1>
-    <% if (locals.id) { %>
-    <p>
-      URL Generated:
+    <p><p>
+      URL:
       <a
-        href="http://localhost:8001/url/<%= id %>"
+        href="http://localhost:8001/url/"
         target="_blank"
         style="color: #ff8080; text-decoration: none"
-        >http://localhost:8001/url/<%= id %></a
+        >http://localhost:8001/url/</a
       >
-    </p>
-    <% } %>
+    </p></p>
 
     <div class="list">
       <form method="post" action="/url">

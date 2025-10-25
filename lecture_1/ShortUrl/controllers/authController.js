@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require("uuid");
+// const { v4: uuidv4 } = require("uuid");
 
 const authUser = require("../models/authUsers");
 const { setUser } = require("../services/authSession");
@@ -12,17 +12,19 @@ async function handleSignup(req, res) {
 
 async function handleLogin(req, res) {
   const { email, password } = req.body;
-  const user = await authUser.findOne({ email, password });  // Fixed: Use authUser instead of URL
+  const user = await authUser.findOne({ email, password }); // Fixed: Use authUser instead of URL
   console.log(user);
-  const sessionId = uuidv4();
 
   if (!user) {
-    return res.render("login", { error: "Invalid email or password" });  // Added return to prevent further execution
+    return res.render("login", { error: "Invalid email or password" }); // Added return to prevent further execution
   }
-  setUser(sessionId, user);
-  res.cookie("session_id", sessionId);
 
-  return res.redirect("/");  // This now only executes if user exists
+//setUser(sessionId, user);
+
+  const token = setUser(user);
+  res.cookie("session_id", token);
+
+  return res.redirect("/"); // This now only executes if user exists
 }
 
 module.exports = { handleSignup, handleLogin };

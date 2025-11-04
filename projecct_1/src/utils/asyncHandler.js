@@ -19,6 +19,12 @@ const asyncHandler = (fn) => async (req, res, next) => {
 */
 export { asyncHandler };
 
+
+/**
+ * link : https://chatgpt.com/share/690a4379-133c-800c-bbcb-f57a6b2b6c38
+ */
+
+
 // const asyncHandler = ()=>{}
 // const asyncHandler = (func)=>{ ()=>{} }
 // const asyncHandler = (func)=>{ async()=>{} }

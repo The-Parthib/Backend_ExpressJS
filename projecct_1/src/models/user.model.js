@@ -50,7 +50,7 @@ const userSchema = new Schema(
 );
 
 // mongoose middleware -> to hash password before saving user document
-userSchema.pre("save", function (next) {
+userSchema.pre("save", async function (next) {
   //just to make sure it will execute only when passwprd has been changed or is new
   if (!this.isModified("password")) {
     return next();

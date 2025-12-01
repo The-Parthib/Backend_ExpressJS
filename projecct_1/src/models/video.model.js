@@ -3,7 +3,7 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const videoSchema = new Schema({
     videoFile:{
-        type: String,  // cloudanyary
+        type: String,  // cloudinyary
         required: true
 
     },
@@ -35,9 +35,8 @@ const videoSchema = new Schema({
     },
     owner:{
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User' // the  model should exists in database
     }
-
 
 },{timestamps:true}); // for createdAt and updatedAt
 

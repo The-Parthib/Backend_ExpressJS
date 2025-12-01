@@ -58,5 +58,39 @@ userSchema.pre("save", async function (next) {
   this.password = bcrypt.hash(this.password, 10); // 10 -> salt rounds, higher the rounds more secure but slower
   next();
 });
+// for checking password during login as it is hashed in db
+userSchema.methods.isPasswordCorrect = async function (plaintextPassword) {
+  return await bcrypt.compare(plaintextPassword, this.password); // returns boolean
+};
+
+// generate jwt tokens access and refresh
+//access token
+userSchema.methods.generateAccessToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+      email: this.email,
+      username: this.username,
+      fullName: this.fullName,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+    }
+  );
+};
+
+// refresh token
+userSchema.methods.generateRefreshToken = function () {
+  return jwt.sign(
+    {
+      _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+    }
+  );
+};
 
 export const User = mongoose.model("User", userSchema);

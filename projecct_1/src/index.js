@@ -4,7 +4,7 @@ import connectDB from "./db/MongoDB.js";
 import app from "./app.js";
 
 dotenv.config({
-  path: "../env",
+  path: "../.env",
 });
 // as connectDB is a async function we can use thennable method to start the server only after successful connection to the database
 connectDB()

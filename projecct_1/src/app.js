@@ -21,4 +21,11 @@ app.use(express.static("public")); // to serve static files such as images, css 
 app.use(cookieParser()); // to parse the cookie header and populate req.cookies with an object keyed by the cookie names
 
 
+// Routes imports
+import userRoutes from "./routes/user.routes.js";
+
+// Routes declaration | middlewares
+app.use("/api/v1/users", userRoutes)
+// http://localhost:8000/api/v1/users/register
+
 export default app;

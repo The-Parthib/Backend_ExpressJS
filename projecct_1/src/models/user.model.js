@@ -34,7 +34,7 @@ const userSchema = new Schema(
     },
     watchHistory: [
       {
-        type: Schema.Types.OnjectId,
+        type: Schema.Types.ObjectId,
         ref: "Video",
       },
     ],
@@ -42,7 +42,7 @@ const userSchema = new Schema(
       type: String,
       required: [true, "Password is required"], // custom error message
     },
-    refreshTocken: {
+    refreshToken: {
       type: String,
     },
   },
@@ -55,7 +55,7 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
-  this.password = bcrypt.hash(this.password, 10); // 10 -> salt rounds, higher the rounds more secure but slower
+  this.password = await bcrypt.hash(this.password, 10); // 10 -> salt rounds, higher the rounds more secure but slower
   next();
 });
 // for checking password during login as it is hashed in db

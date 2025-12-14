@@ -15,8 +15,8 @@ const registerUser = asyncHandler( async (req,res)=>{
     // 6. remove password and refreshToken from response
     // 7. check for user creation success -> send response
 
-    const {fullName, email, username, password} = req.body;
-    console.log("Email : ", email);
+    const {fullName, email, username,password} = req.body;
+    //console.log("Email : ", email);
 
     // validation of non empty fields
     /*
@@ -32,7 +32,7 @@ const registerUser = asyncHandler( async (req,res)=>{
     }
 
     // ============ check if user already exists ==================
-    const userExist = User.findOne({
+    const userExist = await User.findOne({
         $or: [{email}, {username}]
     })
     if(userExist){
@@ -41,8 +41,14 @@ const registerUser = asyncHandler( async (req,res)=>{
     // =============================================================
     // Handling file uploads using multer middleware
     // =============================================================
+    // console.log(req.files);
     const avatarLocalPath = req.files?.avatar[0]?.path;
-    const coverImageLocalPath = req.files?.coverPhoto[0]?.path;
+    //const coverImageLocalPath = req.files?.coverImage[0]?.path; // but can handle undefined
+    let coverImageLocalPath;
+
+    if(req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0){
+        coverImageLocalPath = req.files.coverImage[0].path;
+    }
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar is required");
@@ -66,7 +72,7 @@ const registerUser = asyncHandler( async (req,res)=>{
 
     })
 
-    const createduser = await user.findById(user._id).select(
+    const createduser = await User.findById(user._id).select(
         "-password -refreshToken"
     )
     if(!createduser){

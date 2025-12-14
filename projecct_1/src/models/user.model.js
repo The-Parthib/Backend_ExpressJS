@@ -49,7 +49,7 @@ const userSchema = new Schema(
   { timestamps: true }
 );
 
-// mongoose middleware -> to hash password before saving user document
+// --------- mongoose middleware -> to hash password before saving user document -----------
 userSchema.pre("save", async function (next) {
   //just to make sure it will execute only when passwprd has been changed or is new
   if (!this.isModified("password")) {
@@ -58,7 +58,8 @@ userSchema.pre("save", async function (next) {
   this.password = await bcrypt.hash(this.password, 10); // 10 -> salt rounds, higher the rounds more secure but slower
   next();
 });
-// for checking password during login as it is hashed in db
+
+// ---------- for checking password during login as it is hashed in db -------------
 userSchema.methods.isPasswordCorrect = async function (plaintextPassword) {
   return await bcrypt.compare(plaintextPassword, this.password); // returns boolean
 };

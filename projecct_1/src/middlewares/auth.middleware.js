@@ -16,7 +16,7 @@ export const verifyJWT = asyncHandler( async(req,res,next)=>{
             throw new ApiError(401, "Unauthorized request - No token provided");
         }
     
-        // verify token through JWT
+        // verify token through JWT || decodes the payload
         const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
     
         // Database call -> got the decoded user from token

@@ -4,7 +4,7 @@ import validator from "validator";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponses.js";
-import {options} from "../constants.js"
+import { options } from "../constants.js"
 import jwt from "jsonwebtoken";
 
 // =========== Function to handle AccessToken and RefreshToken generation ===========

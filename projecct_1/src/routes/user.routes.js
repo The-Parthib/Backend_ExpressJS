@@ -13,6 +13,7 @@ const uploadFields = upload.fields([
   {name: "coverImage", maxCount: 1},
 ]);
 // ===============================================
+
 /**========== Register Route */
 router.route("/register").post(
   uploadFields, // line -> 10 to handle file upload middleware

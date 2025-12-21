@@ -4,7 +4,7 @@ import validator from "validator";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponses.js";
-import { options } from "../constants.js"
+import { options } from "../constants.js";
 import jwt from "jsonwebtoken";
 
 // =========== Function to handle AccessToken and RefreshToken generation ===========
@@ -196,58 +196,194 @@ const logOutUser = asyncHandler(async (req, res) => {
     secure: true,
   };
 
-  // clear cookies 
+  // clear cookies
   return res
-  .status(200)
-  .clearCookie("accessToken", cookieOptions)
-  .clearCookie("refreshToken", cookieOptions)
-  .json(
-    new ApiResponse(200, {}, "User logged out successfully")
-  )
+    .status(200)
+    .clearCookie("accessToken", cookieOptions)
+    .clearCookie("refreshToken", cookieOptions)
+    .json(new ApiResponse(200, {}, "User logged out successfully"));
 });
 // ======== End of user logout controller ========
 
 // ======== refresh Access Token controller ========
 const refreshAccessToken = asyncHandler(async (req, res) => {
-  const incomingRefreshToken = req.cookies?.refreshToken || req.body?.refreshToken;
+  const incomingRefreshToken =
+    req.cookies?.refreshToken || req.body?.refreshToken;
 
-  if(!incomingRefreshToken){
+  if (!incomingRefreshToken) {
     throw new ApiError(401, "Unauthorized access - Wrong refresh token");
   }
 
-try {
+  try {
     // decode the payload from incoming refresh token
-    const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
-  
-    const user = await User.findById(decodedToken?._id).select(
-      "-password"
-    )
-  
-    if(!user){
-      throw new ApiError(401, "Unauthorized access - User not found or invalid refresh token");
+    const decodedToken = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const user = await User.findById(decodedToken?._id).select("-password");
+
+    if (!user) {
+      throw new ApiError(
+        401,
+        "Unauthorized access - User not found or invalid refresh token"
+      );
     }
-  
-    if(incomingRefreshToken !== user?.refreshToken){
+
+    if (incomingRefreshToken !== user?.refreshToken) {
       throw new ApiError(401, "Unauthorized access - Invalid refresh token");
     }
-  
-    const { accessToken, newRefreshToken } = await generateAccessAndRefreshTokens(user._id);
-  
+
+    const { accessToken, newRefreshToken } =
+      await generateAccessAndRefreshTokens(user._id);
+
     return res
-    .status(200)
-    .cookie("accessToken", accessToken, options)
-    .cookie("refreshToken", newRefreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        { accessToken, refreshToken: newRefreshToken },
-        "Access token refreshed successfully"
-      )
-    )
-} catch (error) {
-  new ApiError(401,error?.message || "Unauthorized access - Invalid refresh token");
-}
+      .status(200)
+      .cookie("accessToken", accessToken, options)
+      .cookie("refreshToken", newRefreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken: newRefreshToken },
+          "Access token refreshed successfully"
+        )
+      );
+  } catch (error) {
+    new ApiError(
+      401,
+      error?.message || "Unauthorized access - Invalid refresh token"
+    );
+  }
 });
 // ======== End of refresh Access Token controller ========
 
-export { registerUser, loginUser, logOutUser, refreshAccessToken };
+// ======== User Password change controller ========
+const changeCurrentPassword = asyncHandler(async (req, res) => {
+  // hold old and new passwords from request body
+  const { oldPassword, newPassword } = req.body;
+  // Identify the user from req.user -> set by verifyJWT middleware
+  const user = await User.findById(req.user?._id);
+  const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
+
+  if (!isPasswordCorrect) {
+    throw new ApiError(400, "Old password is incorrect");
+  }
+
+  user.password = newPassword; // will be hashed by mongoose middleware
+  await user.save({ validateBeforeSave: false }); // to skip other field validations || save to DB
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
+});
+// ======== End of User Password change controller ========
+
+// ======== Get Current User Controller ========
+const getCurrentUser = asyncHandler( async (req, res) => {
+  return res.status(200).json(
+    new ApiResponse(200, req.user, "Current user fetched successfully")
+  );
+});
+// ======== End of Get Current User Controller ========
+
+// ======== Update User Account Controller ========
+const updateUserAccount = asyncHandler( async(req,res)=>{
+  const { fullName,email } = req.body;
+  if(!fullName || !email){
+    throw new ApiError(400,"Fullname and Email are required");
+  }
+
+  // Get the user from req.user -> set by verifyJWT middleware
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set:{
+        fullName: fullName, // or simply fullName,
+        email: email // or simply email
+      }
+    },
+    { new: true } // to get updated user document in response
+  ).select("-password");
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200,user,"User account updated successfully"));
+});
+// ======== End of Update User Account Controller ========
+
+/*
+  NOTE:
+      1. Update Files controlers should be handled separately
+      2. For updating files use multer middleware to handle file uploads
+      3. Then upload the files to cloudinary using uploadOnCloudinary function
+      4. Then update the user document with new file URLs
+*/
+
+// ======== Update User Avatar Controller ========
+const updateUserAvatar = asyncHandler(async(req,res)=>{
+  const avatarLocalPath = req.file?.path; // multer middleware will set the file in req.file
+  if(!avatarLocalPath){
+    throw new ApiError(400,"Avatar file is required");
+  }
+  // upload on cloudinary
+  const avatarUPloadResponse = await uploadOnCloudinary(avatarLocalPath);
+  if(!avatarUPloadResponse?.secure_url){
+    throw new ApiError(500,"Error while uploading avatar to cloudinary");
+  }
+  // update the avatar url in user document in DB
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set:{
+        avatar: avatarUPloadResponse.secure_url
+      }
+    },
+    { new : true } // to get updated user document in response
+  ).select("-password");
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200,user,"User avatar updated successfully"));
+})
+// ======== End of Update User Avatar Controller ========
+
+
+// ======== Update User CoverImage Controller ========
+const updateUserCoverImage = asyncHandler(async(req,res)=>{
+  const coverImageLocalPath = req.file?.path; // multer middleware will set the file in req.file
+  if(!coverImageLocalPath){
+    throw new ApiError(400,"CoverImage file is required");
+  }
+  // upload on cloudinary
+  const coverImageResponse = await uploadOnCloudinary(coverImageLocalPath);
+  if(!coverImageResponse?.secure_url){
+    throw new ApiError(500,"Error while uploading cover Image to cloudinary");
+  }
+  // update the avatar url in user document in DB
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set:{
+        coverImage: coverImageResponse.secure_url
+      }
+    },
+    { new : true } // to get updated user document in response
+  ).select("-password");
+
+  return res
+  .status(200)
+  .json(new ApiResponse(200,user,"User Cover Image updated successfully"));
+})
+// ======== End of Update User coverImage Controller ========
+
+export {
+  registerUser,
+  loginUser,
+  logOutUser,
+  refreshAccessToken,
+  changeCurrentPassword,
+  getCurrentUser,
+  updateUserAccount,
+  updateUserAvatar,
+  updateUserCoverImage
+};

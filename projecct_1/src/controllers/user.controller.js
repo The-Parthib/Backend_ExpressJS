@@ -2,7 +2,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import validator from "validator";
 import { User } from "../models/user.model.js";
-import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { getPublicIdFromUrl, uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponses.js";
 import { options } from "../constants.js";
 import jwt from "jsonwebtoken";
@@ -325,6 +325,11 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
   if(!avatarLocalPath){
     throw new ApiError(400,"Avatar file is required");
   }
+
+  // get old avatar url to delete from cloudinary
+  const oldAvatarUrl = await User.findById(req.user?._id).select("avatar");
+  const oldAvatarPublicId = getPublicIdFromUrl(oldAvatarUrl?.avatar)
+
   // upload on cloudinary
   const avatarUPloadResponse = await uploadOnCloudinary(avatarLocalPath);
   if(!avatarUPloadResponse?.secure_url){
@@ -341,6 +346,9 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
     { new : true } // to get updated user document in response
   ).select("-password");
 
+  // delete old avatar from cloudinary
+  await deleteFromCloudinary(oldAvatarPublicId);
+
   return res
   .status(200)
   .json(new ApiResponse(200,user,"User avatar updated successfully"));
@@ -354,6 +362,11 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
   if(!coverImageLocalPath){
     throw new ApiError(400,"CoverImage file is required");
   }
+
+  // get old coverImage url to delete from cloudinary
+  const oldCoverImageUrl = await User.findById(req.user?._id).select("coverImage");
+  const oldCoverImagePublicId = getPublicIdFromUrl(oldCoverImageUrl?.coverImage)
+
   // upload on cloudinary
   const coverImageResponse = await uploadOnCloudinary(coverImageLocalPath);
   if(!coverImageResponse?.secure_url){
@@ -369,6 +382,9 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
     },
     { new : true } // to get updated user document in response
   ).select("-password");
+
+  // delete old coverImage from cloudinary
+  await deleteFromCloudinary(oldCoverImagePublicId);
 
   return res
   .status(200)

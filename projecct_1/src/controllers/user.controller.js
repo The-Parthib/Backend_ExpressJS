@@ -392,6 +392,17 @@ const updateUserCoverImage = asyncHandler(async(req,res)=>{
 })
 // ======== End of Update User coverImage Controller ========
 
+// ========== get user channel profile controller ==========
+const getUserChannelProfile = asyncHandler( async(req,res)=>{
+  const { username } = req.params;
+
+  if(!username?.trim()){
+    throw new ApiError(400,"Username is required");
+  }
+
+  
+})
+
 export {
   registerUser,
   loginUser,

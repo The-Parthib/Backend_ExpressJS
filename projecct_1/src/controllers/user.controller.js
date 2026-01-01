@@ -6,6 +6,7 @@ import { getPublicIdFromUrl, uploadOnCloudinary, deleteFromCloudinary } from "..
 import { ApiResponse } from "../utils/ApiResponses.js";
 import { options } from "../constants.js";
 import jwt from "jsonwebtoken";
+import { subscribe } from "diagnostics_channel";
 
 // =========== Function to handle AccessToken and RefreshToken generation ===========
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -400,7 +401,48 @@ const getUserChannelProfile = asyncHandler( async(req,res)=>{
     throw new ApiError(400,"Username is required");
   }
 
-  
+  // User.find({username})
+  const channel = await User.aggregate([
+    {
+      $match:{
+        username: username?.toLowerCase()
+      }
+    },
+    {
+      $lookup:{
+        from: "subscriptions", // collection name in DB
+        localField: "_id", // field from users collection
+        foreignField: "channel", // field from subscriptions collection
+        as: "subscribers" // alias for the joined data
+      }
+    },
+    {
+      $lookup:{
+        from: "subscriptions", // collection name in DB
+        localField: "_id", // field from users collection
+        foreignField: "subscriber", // field from subscriptions collection
+        as: "subscribedTo" // alias for the joined data
+      }
+    },
+    {
+      $addFields:{
+        subscriberCount: { $size: "$subscribers" },
+        channelsSubscribedToCount: { $size: "$subscribedTo" },
+        isSubscribed: {
+          $cond:{
+            if: {
+              $in: [ req.user?._id, "$subscribers.subscriber" ] // check if current user id is in subscribers list
+            },
+            then: true,
+            else: false
+          }
+        }
+      }
+    },
+    {
+      $project:{}
+    }
+  ])
 })
 
 export {

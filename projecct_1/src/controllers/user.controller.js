@@ -413,7 +413,7 @@ const getUserChannelProfile = asyncHandler( async(req,res)=>{
         from: "subscriptions", // collection name in DB
         localField: "_id", // field from users collection
         foreignField: "channel", // field from subscriptions collection
-        as: "subscribers" // alias for the joined data
+        as: "subscribers" // alias for the joined data [Subscriber of a channel <- User ]
       }
     },
     {
@@ -421,7 +421,7 @@ const getUserChannelProfile = asyncHandler( async(req,res)=>{
         from: "subscriptions", // collection name in DB
         localField: "_id", // field from users collection
         foreignField: "subscriber", // field from subscriptions collection
-        as: "subscribedTo" // alias for the joined data
+        as: "subscribedTo" // alias for the joined data [ User -> subdcribed which channels ]
       }
     },
     {
@@ -440,9 +440,28 @@ const getUserChannelProfile = asyncHandler( async(req,res)=>{
       }
     },
     {
-      $project:{}
+      $project:{
+        fullName: 1,
+        username: 1,
+        subscriberCount: 1,
+        channelsSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1
+      }
     }
   ])
+
+  // TODO -> console.log(channel); see the structure of channel
+
+  if(!channel?.length){
+    throw new ApiError(404,"Channel not found with given username");
+  }
+  return res
+  .status(200)
+  .json(new ApiResponse(200,channel[0],"User channel profile fetched successfully"));
+  
 })
 
 export {

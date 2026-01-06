@@ -6,7 +6,7 @@ import { getPublicIdFromUrl, uploadOnCloudinary, deleteFromCloudinary } from "..
 import { ApiResponse } from "../utils/ApiResponses.js";
 import { options } from "../constants.js";
 import jwt from "jsonwebtoken";
-import { subscribe } from "diagnostics_channel";
+import mongoose from "mongoose";
 
 // =========== Function to handle AccessToken and RefreshToken generation ===========
 const generateAccessAndRefreshTokens = async (userId) => {
@@ -463,6 +463,55 @@ const getUserChannelProfile = asyncHandler( async(req,res)=>{
   .json(new ApiResponse(200,channel[0],"User channel profile fetched successfully"));
   
 })
+// ========== End of get user channel profile controller ==========
+
+// ========== get user watch history controller ==========
+const getWatchHistory = asyncHandler(async (req, res) => {
+
+  // convert req.user._id to ObjectId -> as req.user._id is string on correct mongodb so I have to convert it
+  const userId = new mongoose.Types.ObjectId(String(req.user._id));
+  const user = await User.aggregate([
+    {
+      $match: { 
+        _id : userId
+      }
+    },
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreighnField: "_id",
+              as: "owner", //TODO make the pipeline outside and see the result
+              pipeline: [
+                {
+                  $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1
+                  }
+                }
+              ]
+            }
+          },
+          {
+            $addFields: {
+              owner :{
+                $first: "$owner"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ])
+});
 
 export {
   registerUser,
@@ -473,5 +522,7 @@ export {
   getCurrentUser,
   updateUserAccount,
   updateUserAvatar,
-  updateUserCoverImage
+  updateUserCoverImage,
+  getUserChannelProfile,
+  getWatchHistory
 };

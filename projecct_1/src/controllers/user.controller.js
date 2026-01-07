@@ -22,6 +22,7 @@ const generateAccessAndRefreshTokens = async (userId) => {
     throw new ApiError(500, "Error while generating access and refresh tokens");
   }
 };
+// =========== End of Function to handle AccessToken and RefreshToken generation ===========
 
 // ======== User Registration Controller ========
 const registerUser = asyncHandler(async (req, res) => {

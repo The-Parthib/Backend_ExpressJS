@@ -183,8 +183,8 @@ const logOutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user?._id,
     {
-      $set: {
-        refreshToken: undefined,
+      $unset: {
+        refreshToken: 1, // this removes the field from DB document
       },
     },
     {
@@ -207,7 +207,7 @@ const logOutUser = asyncHandler(async (req, res) => {
 });
 // ======== End of user logout controller ========
 
-// ======== refresh Access Token controller ========
+// ======== refresh<>Access Token controller ========
 const refreshAccessToken = asyncHandler(async (req, res) => {
   const incomingRefreshToken =
     req.cookies?.refreshToken || req.body?.refreshToken;

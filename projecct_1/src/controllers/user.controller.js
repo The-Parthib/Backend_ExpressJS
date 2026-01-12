@@ -2,7 +2,11 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import validator from "validator";
 import { User } from "../models/user.model.js";
-import { getPublicIdFromUrl, uploadOnCloudinary, deleteFromCloudinary } from "../utils/cloudinary.js";
+import {
+  getPublicIdFromUrl,
+  uploadOnCloudinary,
+  deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponses.js";
 import { options } from "../constants.js";
 import jwt from "jsonwebtoken";
@@ -281,35 +285,42 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 // ======== End of User Password change controller ========
 
 // ======== Get Current User Controller ========
-const getCurrentUser = asyncHandler( async (req, res) => {
-  return res.status(200).json(
-    new ApiResponse(200, req.user, "Current user fetched successfully")
-  );
+const getCurrentUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "Current user fetched successfully"));
 });
 // ======== End of Get Current User Controller ========
 
 // ======== Update User Account Controller ========
-const updateUserAccount = asyncHandler( async(req,res)=>{
-  const { fullName,email } = req.body;
-  if(!fullName || !email){
-    throw new ApiError(400,"Fullname and Email are required");
+const updateUserAccount = asyncHandler(async (req, res) => {
+  const { fullName, email } = req.body;
+
+  // Check if at least one field is provided
+  if (!fullName && !email) {
+    throw new ApiError(
+      400,
+      "At least one field (fullName or email) is required"
+    );
   }
+
+  // Build update object with only provided fields
+  const updateFields = {};
+  if (fullName) updateFields.fullName = fullName;
+  if (email) updateFields.email = email;
 
   // Get the user from req.user -> set by verifyJWT middleware
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
-      $set:{
-        fullName: fullName, // or simply fullName,
-        email: email // or simply email
-      }
+      $set: updateFields,
     },
     { new: true } // to get updated user document in response
   ).select("-password");
 
   return res
-  .status(200)
-  .json(new ApiResponse(200,user,"User account updated successfully"));
+    .status(200)
+    .json(new ApiResponse(200, user, "User account updated successfully"));
 });
 // ======== End of Update User Account Controller ========
 
@@ -322,126 +333,129 @@ const updateUserAccount = asyncHandler( async(req,res)=>{
 */
 
 // ======== Update User Avatar Controller ========
-const updateUserAvatar = asyncHandler(async(req,res)=>{
+const updateUserAvatar = asyncHandler(async (req, res) => {
   const avatarLocalPath = req.file?.path; // multer middleware will set the file in req.file
-  if(!avatarLocalPath){
-    throw new ApiError(400,"Avatar file is required");
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required");
   }
 
   // get old avatar url to delete from cloudinary
   const oldAvatarUrl = await User.findById(req.user?._id).select("avatar");
-  const oldAvatarPublicId = getPublicIdFromUrl(oldAvatarUrl?.avatar)
+  const oldAvatarPublicId = getPublicIdFromUrl(oldAvatarUrl?.avatar);
 
   // upload on cloudinary
   const avatarUPloadResponse = await uploadOnCloudinary(avatarLocalPath);
-  if(!avatarUPloadResponse?.secure_url){
-    throw new ApiError(500,"Error while uploading avatar to cloudinary");
+  if (!avatarUPloadResponse?.secure_url) {
+    throw new ApiError(500, "Error while uploading avatar to cloudinary");
   }
   // update the avatar url in user document in DB
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
-      $set:{
-        avatar: avatarUPloadResponse.secure_url
-      }
+      $set: {
+        avatar: avatarUPloadResponse.secure_url,
+      },
     },
-    { new : true } // to get updated user document in response
+    { new: true } // to get updated user document in response
   ).select("-password");
 
   // delete old avatar from cloudinary
   await deleteFromCloudinary(oldAvatarPublicId);
 
   return res
-  .status(200)
-  .json(new ApiResponse(200,user,"User avatar updated successfully"));
-})
+    .status(200)
+    .json(new ApiResponse(200, user, "User avatar updated successfully"));
+});
 // ======== End of Update User Avatar Controller ========
 
-
 // ======== Update User CoverImage Controller ========
-const updateUserCoverImage = asyncHandler(async(req,res)=>{
+const updateUserCoverImage = asyncHandler(async (req, res) => {
   const coverImageLocalPath = req.file?.path; // multer middleware will set the file in req.file
-  if(!coverImageLocalPath){
-    throw new ApiError(400,"CoverImage file is required");
+  if (!coverImageLocalPath) {
+    throw new ApiError(400, "CoverImage file is required");
   }
 
   // get old coverImage url to delete from cloudinary
-  const oldCoverImageUrl = await User.findById(req.user?._id).select("coverImage");
-  const oldCoverImagePublicId = getPublicIdFromUrl(oldCoverImageUrl?.coverImage)
+  const oldCoverImageUrl = await User.findById(req.user?._id).select(
+    "coverImage"
+  );
+  const oldCoverImagePublicId = getPublicIdFromUrl(
+    oldCoverImageUrl?.coverImage
+  );
 
   // upload on cloudinary
   const coverImageResponse = await uploadOnCloudinary(coverImageLocalPath);
-  if(!coverImageResponse?.secure_url){
-    throw new ApiError(500,"Error while uploading cover Image to cloudinary");
+  if (!coverImageResponse?.secure_url) {
+    throw new ApiError(500, "Error while uploading cover Image to cloudinary");
   }
   // update the avatar url in user document in DB
   const user = await User.findByIdAndUpdate(
     req.user?._id,
     {
-      $set:{
-        coverImage: coverImageResponse.secure_url
-      }
+      $set: {
+        coverImage: coverImageResponse.secure_url,
+      },
     },
-    { new : true } // to get updated user document in response
+    { new: true } // to get updated user document in response
   ).select("-password");
 
   // delete old coverImage from cloudinary
   await deleteFromCloudinary(oldCoverImagePublicId);
 
   return res
-  .status(200)
-  .json(new ApiResponse(200,user,"User Cover Image updated successfully"));
-})
+    .status(200)
+    .json(new ApiResponse(200, user, "User Cover Image updated successfully"));
+});
 // ======== End of Update User coverImage Controller ========
 
 // ========== get user channel profile controller ==========
-const getUserChannelProfile = asyncHandler( async(req,res)=>{
+const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
 
-  if(!username?.trim()){
-    throw new ApiError(400,"Username is required");
+  if (!username?.trim()) {
+    throw new ApiError(400, "Username is required");
   }
 
   // User.find({username})
   const channel = await User.aggregate([
     {
-      $match:{
-        username: username?.toLowerCase()
-      }
+      $match: {
+        username: username?.toLowerCase(),
+      },
     },
     {
-      $lookup:{
+      $lookup: {
         from: "subscriptions", // collection name in DB
         localField: "_id", // field from users collection
         foreignField: "channel", // field from subscriptions collection
-        as: "subscribers" // alias for the joined data [Subscriber of a channel <- User ]
-      }
+        as: "subscribers", // alias for the joined data [Subscriber of a channel <- User ]
+      },
     },
     {
-      $lookup:{
+      $lookup: {
         from: "subscriptions", // collection name in DB
         localField: "_id", // field from users collection
         foreignField: "subscriber", // field from subscriptions collection
-        as: "subscribedTo" // alias for the joined data [ User -> subdcribed which channels ]
-      }
+        as: "subscribedTo", // alias for the joined data [ User -> subdcribed which channels ]
+      },
     },
     {
-      $addFields:{
+      $addFields: {
         subscriberCount: { $size: "$subscribers" },
         channelsSubscribedToCount: { $size: "$subscribedTo" },
         isSubscribed: {
-          $cond:{
+          $cond: {
             if: {
-              $in: [ req.user?._id, "$subscribers.subscriber" ] // check if current user id is in subscribers list
+              $in: [req.user?._id, "$subscribers.subscriber"], // check if current user id is in subscribers list
             },
             then: true,
-            else: false
-          }
-        }
-      }
+            else: false,
+          },
+        },
+      },
     },
     {
-      $project:{
+      $project: {
         fullName: 1,
         username: 1,
         subscriberCount: 1,
@@ -449,33 +463,37 @@ const getUserChannelProfile = asyncHandler( async(req,res)=>{
         isSubscribed: 1,
         avatar: 1,
         coverImage: 1,
-        email: 1
-      }
-    }
-  ])
+        email: 1,
+      },
+    },
+  ]);
 
   // TODO -> console.log(channel); see the structure of channel
 
-  if(!channel?.length){
-    throw new ApiError(404,"Channel not found with given username");
+  if (!channel?.length) {
+    throw new ApiError(404, "Channel not found with given username");
   }
   return res
-  .status(200)
-  .json(new ApiResponse(200,channel[0],"User channel profile fetched successfully"));
-  
-})
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        channel[0],
+        "User channel profile fetched successfully"
+      )
+    );
+});
 // ========== End of get user channel profile controller ==========
 
 // ========== get user watch history controller ==========
 const getWatchHistory = asyncHandler(async (req, res) => {
-
   // convert req.user._id to ObjectId -> as req.user._id is string on correct mongodb so I have to convert it
   const userId = new mongoose.Types.ObjectId(String(req.user._id));
   const user = await User.aggregate([
     {
-      $match: { 
-        _id : userId
-      }
+      $match: {
+        _id: userId,
+      },
     },
     {
       $lookup: {
@@ -488,34 +506,40 @@ const getWatchHistory = asyncHandler(async (req, res) => {
             $lookup: {
               from: "users",
               localField: "owner",
-              foreighnField: "_id",
+              foreignField: "_id",
               as: "owner", //TODO make the pipeline outside and see the result
               pipeline: [
                 {
                   $project: {
                     fullName: 1,
                     username: 1,
-                    avatar: 1
-                  }
-                }
-              ]
-            }
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
           },
           {
             $addFields: {
-              owner :{
-                $first: "$owner"
-              }
-            }
-          }
-        ]
-      }
-    }
-  ])
+              owner: {
+                $first: "$owner",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ]);
 
   return res
     .status(200)
-    .json(new ApiResponse(200, user[0]?.watchHistory , "User watch history fetched successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        user[0]?.watchHistory,
+        "User watch history fetched successfully"
+      )
+    );
 });
 
 export {
@@ -529,5 +553,5 @@ export {
   updateUserAvatar,
   updateUserCoverImage,
   getUserChannelProfile,
-  getWatchHistory
+  getWatchHistory,
 };

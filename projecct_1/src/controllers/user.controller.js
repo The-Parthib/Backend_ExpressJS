@@ -469,6 +469,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
   ]);
 
   // TODO -> console.log(channel); see the structure of channel
+  console.log(channel);
 
   if (!channel?.length) {
     throw new ApiError(404, "Channel not found with given username");

@@ -11,7 +11,7 @@ app.use(express.json());
 const notes = []
 
 // APIs
-app.post("/data",(req,res)=>{
+app.post("/data", (req, res) => {
     console.log(req.body);
     notes.push(req.body);
     return res.status(200).json({
@@ -21,7 +21,7 @@ app.post("/data",(req,res)=>{
 })
 
 
-app.get("/data", (req,res)=>{
+app.get("/data", (req, res) => {
     return res.status(200).json({
         message: "Data received successfully",
         count: notes.length,
@@ -29,17 +29,29 @@ app.get("/data", (req,res)=>{
     })
 })
 
-app.delete("data/:index", (req,res)=>{
-    const {index} = req.params;
-    const note = notes.splice(index, 1);
+app.delete("/data/:index", (req, res) => {
+    const { index } = req.params;
+    const note = delete notes[index];
     return res.status(200).json({
         message: "Data deleted successfully",
+        remaining_data: notes.length,
         data: note
     })
 })
 
+app.patch("/data/:index",(req,res)=>{
 
-app.get("/", (req,res)=>{
+    const idx = req.params.index;
+    const description = req.body.Description;
+    notes[idx].Description = description;
+
+    return res.status(200).json({
+        message: "Data updated successfully",
+        data: notes[idx]
+    })
+})
+
+app.get("/", (req, res) => {
     res.send(notes);
 })
 

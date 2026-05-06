@@ -1,53 +1,59 @@
 // The main purpose is to create the Server here
 
 import express from "express";
+import notesModel from "./model/notes.model.js";
 
 const app = express();
 
 // Middleware to parse JSON data from the request body 
 app.use(express.json());
 
-// NOTES to be added here 
-const notes = []
+
 
 // APIs
-app.post("/data", (req, res) => {
+app.post("/note", async (req, res) => {
     console.log(req.body);
-    notes.push(req.body);
+    const data = req.body;
+    
+    await notesModel.create({
+        title : data.title,
+        description : data.Description
+    });
+
     return res.status(200).json({
         message: "Data received successfully",
         data: req.body
     })
 })
 
-
-app.get("/data", (req, res) => {
+app.get("/notes", async(req, res) => {
+    const notes = await notesModel.find();
     return res.status(200).json({
-        message: "Data received successfully",
-        count: notes.length,
+        message: "Notes fetched successfully",
         data: notes
     })
 })
 
-app.delete("/data/:index", (req, res) => {
-    const { index } = req.params;
-    const note = delete notes[index];
-    return res.status(200).json({
-        message: "Data deleted successfully",
-        remaining_data: notes.length,
-        data: note
+app.delete("/note/:id", async (req, res) => {
+    const id = req.params.id;
+    
+    await notesModel.findByIdAndDelete({
+        _id : id    
+    })
+    
+    res.status(200).json({
+        message: "Note deleted successfully",
     })
 })
 
-app.patch("/data/:index",(req,res)=>{
+app.patch("/note/:id", async(req,res)=>{
+    const id = req.params.id;
+    const description = req.body.description;
+    
+    await notesModel.findByIdAndUpdate({_id : id},{ description : description});
 
-    const idx = req.params.index;
-    const description = req.body.Description;
-    notes[idx].Description = description;
-
-    return res.status(200).json({
+    res.status(200).json({
         message: "Data updated successfully",
-        data: notes[idx]
     })
 })
 

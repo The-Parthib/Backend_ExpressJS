@@ -1,0 +1,18 @@
+{
+  "name": "project_2",
+  "version": "1.0.0",
+  "description": "This project is still on tutorial purpose. I am following sheriyans coding school to learn the backend.",
+  "license": "ISC",
+  "author": "Parthib Panja",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.6.1"
+  }
+}

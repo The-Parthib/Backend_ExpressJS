@@ -1,8 +1,15 @@
 import mongoose from "mongoose";
 
-async function connectDB(){
-    await mongoose.connect("mongodb+srv://rijupanja81_db_user:FpTla5IXs7b7Dpmd@sheriyansbackend.iz2kn8k.mongodb.net/NotesApp?appName=sheriyansBackend");
-    console.log("MongoDB connected");
+const DB_NAME = "ShareMe"
+
+async function connectDB() {
+    try {
+        const connectionInstance = await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`);
+        console.log(`MongoDB connected !! DB HOST : ${connectionInstance.connection.host}`);
+    } catch (error) {
+        console.error("Error connecting to MongoDB:", error);
+        process.exit(1);
+    }
 }
 
-export default connectDB; 
+export default connectDB;

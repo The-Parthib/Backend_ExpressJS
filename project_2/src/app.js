@@ -1,7 +1,7 @@
 // The main purpose is to create the Server here
 
 import express from "express";
-import notesModel from "./model/notes.model.js";
+//import notesModel from "./model/notes.model.js";
 
 const app = express();
 
@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 
 
-
+/*
 // APIs
 app.post("/note", async (req, res) => {
     console.log(req.body);
@@ -59,6 +59,20 @@ app.patch("/note/:id", async(req,res)=>{
 
 app.get("/", (req, res) => {
     res.send(notes);
+})
+*/
+
+// ========================================
+// ShareMe App
+// ========================================
+
+app.post("/create-post", async (req, res) => {
+    console.log(req.body);
+
+    return res.status(200).json({
+        message: "Post created successfully",
+        data: req.body
+    })
 })
 
 export default app; 
